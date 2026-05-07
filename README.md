@@ -1,1 +1,1112 @@
-# DailyPlanner
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CA Daily Planner & Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F6F2;
+    --surface: #FFFFFF;
+    --surface2: #F0EEE8;
+    --border: #E2DED6;
+    --border2: #C8C4BA;
+    --txt: #1C1A16;
+    --txt2: #6B6760;
+    --txt3: #A09C96;
+
+    --office: #0F6E56;
+    --office-bg: #E1F5EE;
+    --office-mid: #1D9E75;
+    --office-dark: #085041;
+
+    --study: #B06A10;
+    --study-bg: #FDF0DC;
+    --study-mid: #EF9F27;
+    --study-dark: #633806;
+
+    --workout: #2155A3;
+    --workout-bg: #E8F0FB;
+    --workout-mid: #378ADD;
+    --workout-dark: #0C447C;
+
+    --danger: #A32D2D;
+    --danger-bg: #FCEBEB;
+
+    --high-bg: #FCEBEB; --high-txt: #791F1F;
+    --med-bg: #FDF0DC;  --med-txt: #633806;
+    --low-bg: #EAF3DE;  --low-txt: #27500A;
+
+    --radius: 10px;
+    --radius-lg: 16px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--txt);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* HEADER */
+  .site-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--office);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-icon svg { width: 18px; height: 18px; fill: white; }
+  .logo-text { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--txt); }
+  .logo-sub { font-size: 11px; color: var(--txt2); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .date-nav { display: flex; align-items: center; gap: 6px; }
+  .date-nav button {
+    width: 30px; height: 30px;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--txt2);
+    transition: all .15s;
+  }
+  .date-nav button:hover { background: var(--surface2); color: var(--txt); }
+  #date-input {
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    background: var(--surface);
+    color: var(--txt);
+    cursor: pointer;
+  }
+  .btn-print {
+    padding: 6px 14px;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--txt2);
+    transition: all .15s;
+  }
+  .btn-print:hover { background: var(--surface2); color: var(--txt); }
+  .btn-export {
+    padding: 6px 14px;
+    border: 1px solid #0F6E56;
+    background: #E1F5EE;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #085041;
+    transition: all .15s;
+  }
+  .btn-export:hover { background: #0F6E56; color: white; }
+  .btn-import {
+    padding: 6px 14px;
+    border: 1px solid #2155A3;
+    background: #E8F0FB;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #0C447C;
+    transition: all .15s;
+  }
+  .btn-import:hover { background: #2155A3; color: white; }
+  .cloud-bar {
+    background: #FDF0DC;
+    border-bottom: 1px solid #E2DED6;
+    padding: 7px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #633806;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .cloud-bar-left { display: flex; align-items: center; gap: 6px; }
+  .cloud-bar a { color: #0F6E56; font-weight: 500; text-decoration: none; }
+  .cloud-bar a:hover { text-decoration: underline; }
+  .toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    background: #1C1A16; color: white;
+    padding: 10px 22px; border-radius: 8px;
+    font-size: 13px; font-weight: 500;
+    z-index: 999; opacity: 0;
+    transition: opacity .3s;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+
+  /* MAIN */
+  .main { max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  /* DATE BANNER */
+  .date-banner {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .date-display { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--txt); }
+  .date-day { font-size: 13px; color: var(--txt2); margin-top: 2px; }
+
+  /* SUMMARY CARDS */
+  .summary-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .sum-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .sum-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    border-radius: 4px 0 0 4px;
+  }
+  .sum-card.total::before { background: var(--txt2); }
+  .sum-card.office::before { background: var(--office); }
+  .sum-card.study::before  { background: var(--study); }
+  .sum-card.workout::before { background: var(--workout); }
+  .sum-label { font-size: 11px; color: var(--txt2); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+  .sum-val { font-size: 28px; font-weight: 600; line-height: 1; }
+  .sum-card.total .sum-val { color: var(--txt); }
+  .sum-card.office .sum-val { color: var(--office); }
+  .sum-card.study .sum-val  { color: var(--study); }
+  .sum-card.workout .sum-val { color: var(--workout); }
+  .sum-sub { font-size: 11px; color: var(--txt3); margin-top: 4px; }
+  .mini-bar { height: 3px; background: var(--surface2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+  .mini-bar-fill { height: 100%; border-radius: 2px; transition: width .5s ease; }
+
+  /* LAYOUT */
+  .planner-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .cat-full { grid-column: 1 / -1; }
+
+  /* CATEGORY CARD */
+  .cat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .cat-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cat-title-row { display: flex; align-items: center; gap: 10px; }
+  .cat-icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .cat-card.office .cat-icon { background: var(--office-bg); }
+  .cat-card.study  .cat-icon { background: var(--study-bg); }
+  .cat-card.workout .cat-icon { background: var(--workout-bg); }
+  .cat-name { font-size: 15px; font-weight: 600; }
+  .cat-card.office .cat-name { color: var(--office-dark); }
+  .cat-card.study  .cat-name { color: var(--study-dark); }
+  .cat-card.workout .cat-name { color: var(--workout-dark); }
+  .cat-stats { display: flex; align-items: center; gap: 8px; }
+  .cat-badge {
+    font-size: 11px; font-weight: 500;
+    padding: 3px 9px; border-radius: 20px;
+  }
+  .office-badge { background: var(--office-bg); color: var(--office-dark); }
+  .study-badge  { background: var(--study-bg);  color: var(--study-dark); }
+  .workout-badge { background: var(--workout-bg); color: var(--workout-dark); }
+  .cat-pct { font-size: 13px; font-weight: 600; color: var(--txt2); }
+
+  .cat-progress { height: 3px; background: var(--surface2); }
+  .cat-progress-fill { height: 100%; transition: width .5s ease; }
+  .cat-card.office .cat-progress-fill { background: var(--office); }
+  .cat-card.study  .cat-progress-fill { background: var(--study); }
+  .cat-card.workout .cat-progress-fill { background: var(--workout); }
+
+  /* TASK LIST */
+  .task-list { max-height: 420px; overflow-y: auto; }
+  .task-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background .12s;
+    position: relative;
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-item:hover { background: var(--bg); }
+  .task-item.done { opacity: 0.6; }
+
+  .task-check-wrap { padding-top: 2px; flex-shrink: 0; }
+  .task-check {
+    width: 17px; height: 17px; cursor: pointer;
+    accent-color: var(--office);
+    flex-shrink: 0;
+  }
+  .cat-card.study  .task-check { accent-color: var(--study); }
+  .cat-card.workout .task-check { accent-color: var(--workout); }
+
+  .task-body { flex: 1; min-width: 0; }
+  .task-title {
+    font-size: 13.5px; font-weight: 500; line-height: 1.4;
+    color: var(--txt);
+  }
+  .task-item.done .task-title { text-decoration: line-through; color: var(--txt3); }
+  .task-desc {
+    font-size: 12px; color: var(--txt2); margin-top: 3px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .task-item.done .task-desc { color: var(--txt3); }
+  .task-meta-row {
+    display: flex; align-items: center; gap: 6px; margin-top: 5px;
+    flex-wrap: wrap;
+  }
+  .task-time-badge {
+    font-size: 11px; font-weight: 500;
+    background: var(--surface2); color: var(--txt2);
+    padding: 2px 7px; border-radius: 5px;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .pri-badge {
+    font-size: 10px; font-weight: 600;
+    padding: 2px 7px; border-radius: 5px;
+    letter-spacing: 0.04em;
+  }
+  .pri-H { background: var(--high-bg); color: var(--high-txt); }
+  .pri-M { background: var(--med-bg);  color: var(--med-txt); }
+  .pri-L { background: var(--low-bg);  color: var(--low-txt); }
+
+  .task-actions { display: flex; gap: 4px; flex-shrink: 0; padding-top: 1px; }
+  .icon-btn {
+    width: 26px; height: 26px; border-radius: 6px;
+    border: none; background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: var(--txt3);
+    transition: all .15s;
+  }
+  .icon-btn:hover { background: var(--surface2); color: var(--txt); }
+  .icon-btn.del:hover { background: var(--danger-bg); color: var(--danger); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center; padding: 32px 20px;
+    color: var(--txt3); font-size: 13px;
+  }
+  .empty-state .empty-icon { font-size: 28px; margin-bottom: 8px; }
+  .empty-state p { line-height: 1.6; }
+
+  /* ADD TASK PANEL */
+  .add-panel {
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .add-toggle {
+    width: 100%; padding: 11px 20px;
+    border: none; background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: var(--txt2);
+    transition: all .15s;
+  }
+  .add-toggle:hover { color: var(--txt); }
+  .add-toggle .plus { font-size: 16px; font-weight: 300; }
+  .cat-card.office .add-toggle:hover { color: var(--office); }
+  .cat-card.study  .add-toggle:hover { color: var(--study); }
+  .cat-card.workout .add-toggle:hover { color: var(--workout); }
+
+  .add-form { padding: 16px 20px 18px; display: none; }
+  .add-form.open { display: block; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+  .field-label { font-size: 11px; font-weight: 600; color: var(--txt2); text-transform: uppercase; letter-spacing: 0.06em; }
+  .field-input, .field-select, .field-textarea {
+    padding: 8px 11px;
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    background: var(--surface);
+    color: var(--txt);
+    transition: border-color .15s;
+    outline: none;
+  }
+  .field-input:focus, .field-select:focus, .field-textarea:focus { border-color: var(--border2); box-shadow: 0 0 0 3px rgba(15,110,86,0.08); }
+  .field-textarea { resize: vertical; min-height: 64px; line-height: 1.5; }
+  .form-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .btn-save {
+    padding: 8px 20px;
+    border: none; border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all .15s;
+    color: white;
+  }
+  .cat-card.office .btn-save { background: var(--office); }
+  .cat-card.office .btn-save:hover { background: var(--office-dark); }
+  .cat-card.study  .btn-save { background: var(--study); }
+  .cat-card.study  .btn-save:hover { background: var(--study-dark); }
+  .cat-card.workout .btn-save { background: var(--workout); }
+  .cat-card.workout .btn-save:hover { background: var(--workout-dark); }
+  .btn-cancel {
+    padding: 8px 16px;
+    border: 1px solid var(--border2); border-radius: 7px;
+    background: var(--surface);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; color: var(--txt2);
+    cursor: pointer; transition: all .15s;
+  }
+  .btn-cancel:hover { background: var(--surface2); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    width: 100%; max-width: 480px;
+    margin: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    transform: translateY(10px);
+    transition: transform .2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-title { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; }
+  .btn-modal-save {
+    padding: 9px 22px; border: none; border-radius: 7px;
+    background: var(--office); color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: background .15s;
+  }
+  .btn-modal-save:hover { background: var(--office-dark); }
+  .btn-modal-cancel {
+    padding: 9px 16px;
+    border: 1px solid var(--border2); border-radius: 7px;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; color: var(--txt2);
+    cursor: pointer; transition: all .15s;
+  }
+  .btn-modal-cancel:hover { background: var(--surface2); }
+
+  /* FOOTER */
+  .site-footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: var(--txt3);
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+
+  @media (max-width: 640px) {
+    .planner-grid { grid-template-columns: 1fr; }
+    .summary-row { grid-template-columns: 1fr 1fr; }
+    .site-header { padding: 0 16px; flex-wrap: wrap; height: auto; padding: 12px 16px; gap: 8px; }
+    .main { padding: 16px 12px 40px; }
+  }
+
+  @media print {
+    .site-header, .add-panel, .task-actions, .btn-print { display: none !important; }
+    body { background: white; }
+    .cat-card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+    .task-list { max-height: none; overflow: visible; }
+  }
+</style>
+
+<!-- Updated Version: Always loads latest default tasks for every selected date -->
+
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+    </div>
+    <div>
+      <div class="logo-text">CA Daily Planner</div>
+      <div class="logo-sub">Professional Schedule Tracker</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="date-nav">
+      <button onclick="changeDate(-1)" title="Previous day">&#8249;</button>
+      <input type="date" id="date-input" onchange="loadDate()">
+      <button onclick="changeDate(1)" title="Next day">&#8250;</button>
+    </div>
+    <button class="btn-export" onclick="exportAllData()" title="Download all data as a backup file">&#9729; Export Backup</button>
+    <button class="btn-import" onclick="document.getElementById('import-file').click()" title="Restore from a backup file">&#8593; Import Backup</button>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn-print" onclick="window.print()">&#128438; Print</button>
+  </div>
+</header>
+
+<div class="cloud-bar">
+  <div class="cloud-bar-left">
+    &#9729; <strong>Cloud Save:</strong>&nbsp; Click <strong>Export Backup</strong> → upload the downloaded file to
+    <a href="https://drive.google.com" target="_blank">Google Drive</a>,
+    <a href="https://onedrive.live.com" target="_blank">OneDrive</a>, or email it to yourself via
+    <a href="https://mail.google.com" target="_blank">Gmail</a>.
+    To restore on any device: click <strong>Import Backup</strong> and select the file.
+  </div>
+  <div id="last-export-lbl" style="color:#A09C96;font-size:11px"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- DATE BANNER -->
+  <div class="date-banner">
+    <div>
+      <div class="date-display" id="date-display"></div>
+      <div class="date-day" id="date-day"></div>
+    </div>
+    <button onclick="resetToDefaults()" class="btn-print" style="font-size:12px;color:var(--danger);border-color:var(--danger);">&#8635; Reset to Defaults</button>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-row">
+    <div class="sum-card total">
+      <div class="sum-label">Overall Progress</div>
+      <div class="sum-val" id="s-total-pct">0%</div>
+      <div class="sum-sub" id="s-total-sub">0 of 0 tasks</div>
+      <div class="mini-bar"><div class="mini-bar-fill" id="s-total-bar" style="width:0%;background:var(--txt2)"></div></div>
+    </div>
+    <div class="sum-card office">
+      <div class="sum-label">&#128188; Office</div>
+      <div class="sum-val" id="s-office-pct">0%</div>
+      <div class="sum-sub" id="s-office-sub">0 of 0 tasks</div>
+      <div class="mini-bar"><div class="mini-bar-fill" id="s-office-bar" style="width:0%;background:var(--office)"></div></div>
+    </div>
+    <div class="sum-card study">
+      <div class="sum-label">&#128218; Study</div>
+      <div class="sum-val" id="s-study-pct">0%</div>
+      <div class="sum-sub" id="s-study-sub">0 of 0 tasks</div>
+      <div class="mini-bar"><div class="mini-bar-fill" id="s-study-bar" style="width:0%;background:var(--study)"></div></div>
+    </div>
+    <div class="sum-card workout">
+      <div class="sum-label">&#127947; Workout</div>
+      <div class="sum-val" id="s-workout-pct">0%</div>
+      <div class="sum-sub" id="s-workout-sub">0 of 0 tasks</div>
+      <div class="mini-bar"><div class="mini-bar-fill" id="s-workout-bar" style="width:0%;background:var(--workout)"></div></div>
+    </div>
+  </div>
+
+  <!-- PLANNER GRID -->
+  <div class="planner-grid">
+
+    <!-- OFFICE -->
+    <div class="cat-card office cat-full" id="card-office">
+      <div class="cat-card-header">
+        <div class="cat-title-row">
+          <div class="cat-icon">&#128188;</div>
+          <div>
+            <div class="cat-name">Office Work</div>
+            <div style="font-size:11px;color:var(--txt3);margin-top:1px">Client assignments, filings, advisory, and compliance work</div>
+          </div>
+        </div>
+        <div class="cat-stats">
+          <span class="cat-badge office-badge" id="badge-office">0/0</span>
+          <span class="cat-pct" id="pct-office">0%</span>
+        </div>
+      </div>
+      <div class="cat-progress"><div class="cat-progress-fill" id="prog-office" style="width:0%"></div></div>
+      <div class="task-list" id="list-office"></div>
+      <div class="add-panel">
+        <button class="add-toggle" onclick="toggleForm('office')">
+          <span class="plus">+</span> Add Office Task
+        </button>
+        <div class="add-form" id="form-office">
+          <div class="form-row full">
+            <div class="field-group">
+              <label class="field-label">Task Title *</label>
+              <input class="field-input" id="fi-office-title" type="text" placeholder="e.g. Review GST returns for client XYZ">
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="field-group">
+              <label class="field-label">Description / Notes</label>
+              <textarea class="field-textarea" id="fi-office-desc" placeholder="Add details, client name, reference number, notes…"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field-group">
+              <label class="field-label">Start Time</label>
+              <input class="field-input" id="fi-office-start" type="time">
+            </div>
+            <div class="field-group">
+              <label class="field-label">End Time</label>
+              <input class="field-input" id="fi-office-end" type="time">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field-group">
+              <label class="field-label">Priority</label>
+              <select class="field-select" id="fi-office-pri">
+                <option value="H">High Priority</option>
+                <option value="M" selected>Medium Priority</option>
+                <option value="L">Low Priority</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Category Tag</label>
+              <select class="field-select" id="fi-office-tag">
+                <option value="">— None —</option>
+                <option value="GST">GST</option>
+                <option value="ITR">Income Tax</option>
+                <option value="Audit">Audit</option>
+                <option value="MCA">MCA / ROC</option>
+                <option value="Client">Client Meeting</option>
+                <option value="ICAI">ICAI</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-save" onclick="saveTask('office')">Save Task</button>
+            <button class="btn-cancel" onclick="toggleForm('office')">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDY -->
+    <div class="cat-card study" id="card-study">
+      <div class="cat-card-header">
+        <div class="cat-title-row">
+          <div class="cat-icon">&#128218;</div>
+          <div>
+            <div class="cat-name">Study & CPE</div>
+            <div style="font-size:11px;color:var(--txt3);margin-top:1px">ICAI CPE, case law updates, and regulatory study</div>
+          </div>
+        </div>
+        <div class="cat-stats">
+          <span class="cat-badge study-badge" id="badge-study">0/0</span>
+          <span class="cat-pct" id="pct-study">0%</span>
+        </div>
+      </div>
+      <div class="cat-progress"><div class="cat-progress-fill" id="prog-study" style="width:0%"></div></div>
+      <div class="task-list" id="list-study"></div>
+      <div class="add-panel">
+        <button class="add-toggle" onclick="toggleForm('study')">
+          <span class="plus">+</span> Add Study Task
+        </button>
+        <div class="add-form" id="form-study">
+          <div class="form-row full">
+            <div class="field-group">
+              <label class="field-label">Study Topic *</label>
+              <input class="field-input" id="fi-study-title" type="text" placeholder="e.g. ITAT Judgement — Transfer Pricing">
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="field-group">
+              <label class="field-label">Description / Notes</label>
+              <textarea class="field-textarea" id="fi-study-desc" placeholder="Chapter reference, source material, target pages…"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field-group">
+              <label class="field-label">Start Time</label>
+              <input class="field-input" id="fi-study-start" type="time">
+            </div>
+            <div class="field-group">
+              <label class="field-label">End Time</label>
+              <input class="field-input" id="fi-study-end" type="time">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field-group">
+              <label class="field-label">Priority</label>
+              <select class="field-select" id="fi-study-pri">
+                <option value="H">High Priority</option>
+                <option value="M" selected>Medium Priority</option>
+                <option value="L">Low Priority</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Subject Tag</label>
+              <select class="field-select" id="fi-study-tag">
+                <option value="">— None —</option>
+                <option value="Direct Tax">Direct Tax</option>
+                <option value="Indirect Tax">Indirect Tax</option>
+                <option value="FEMA">FEMA / RBI</option>
+                <option value="SEBI">SEBI</option>
+                <option value="Companies Act">Companies Act</option>
+                <option value="CPE">CPE Module</option>
+                <option value="Case Law">Case Law</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-save" onclick="saveTask('study')">Save Topic</button>
+            <button class="btn-cancel" onclick="toggleForm('study')">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORKOUT -->
+    <div class="cat-card workout" id="card-workout">
+      <div class="cat-card-header">
+        <div class="cat-title-row">
+          <div class="cat-icon">&#127947;</div>
+          <div>
+            <div class="cat-name">Workout & Wellness</div>
+            <div style="font-size:11px;color:var(--txt3);margin-top:1px">Exercise, wellness, and mindfulness activities</div>
+          </div>
+        </div>
+        <div class="cat-stats">
+          <span class="cat-badge workout-badge" id="badge-workout">0/0</span>
+          <span class="cat-pct" id="pct-workout">0%</span>
+        </div>
+      </div>
+      <div class="cat-progress"><div class="cat-progress-fill" id="prog-workout" style="width:0%"></div></div>
+      <div class="task-list" id="list-workout"></div>
+      <div class="add-panel">
+        <button class="add-toggle" onclick="toggleForm('workout')">
+          <span class="plus">+</span> Add Workout Task
+        </button>
+        <div class="add-form" id="form-workout">
+          <div class="form-row full">
+            <div class="field-group">
+              <label class="field-label">Activity *</label>
+              <input class="field-input" id="fi-workout-title" type="text" placeholder="e.g. Morning Jogging — 5 km">
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="field-group">
+              <label class="field-label">Notes / Target</label>
+              <textarea class="field-textarea" id="fi-workout-desc" placeholder="Sets, reps, duration, location, notes…"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field-group">
+              <label class="field-label">Start Time</label>
+              <input class="field-input" id="fi-workout-start" type="time">
+            </div>
+            <div class="field-group">
+              <label class="field-label">End Time</label>
+              <input class="field-input" id="fi-workout-end" type="time">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field-group">
+              <label class="field-label">Priority</label>
+              <select class="field-select" id="fi-workout-pri">
+                <option value="H">High Priority</option>
+                <option value="M" selected>Medium Priority</option>
+                <option value="L">Low Priority</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Type Tag</label>
+              <select class="field-select" id="fi-workout-tag">
+                <option value="">— None —</option>
+                <option value="Cardio">Cardio</option>
+                <option value="Strength">Strength</option>
+                <option value="Yoga">Yoga</option>
+                <option value="Walk">Walking</option>
+                <option value="Meditation">Meditation</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-save" onclick="saveTask('workout')">Save Activity</button>
+            <button class="btn-cancel" onclick="toggleForm('workout')">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title">Edit Task</div>
+    <div class="form-row full" style="margin-bottom:10px">
+      <div class="field-group">
+        <label class="field-label">Title *</label>
+        <input class="field-input" id="edit-title" type="text">
+      </div>
+    </div>
+    <div class="form-row full" style="margin-bottom:10px">
+      <div class="field-group">
+        <label class="field-label">Description / Notes</label>
+        <textarea class="field-textarea" id="edit-desc"></textarea>
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom:10px">
+      <div class="field-group">
+        <label class="field-label">Start Time</label>
+        <input class="field-input" id="edit-start" type="time">
+      </div>
+      <div class="field-group">
+        <label class="field-label">End Time</label>
+        <input class="field-input" id="edit-end" type="time">
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom:0">
+      <div class="field-group">
+        <label class="field-label">Priority</label>
+        <select class="field-select" id="edit-pri">
+          <option value="H">High</option>
+          <option value="M">Medium</option>
+          <option value="L">Low</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Tag</label>
+        <input class="field-input" id="edit-tag" type="text" placeholder="Optional tag">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-modal-save" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">CA Daily Planner &mdash; All data saved locally in your browser &mdash; No internet or account required</footer>
+
+<script>
+const DEFAULT_TASKS = [
+  {cat:'office',title:'Morning Call',desc:'Daily planning and reporting',start:'10:00',end:'10:30',pri:'L',tag:'Self',done:false},
+  {cat:'office',title:'Audit Workings',desc:'Verify audit workings and reports.',start:'10:30',end:'18:00',pri:'M',tag:'Audit',done:false},
+  {cat:'office',title:'Log Out Before 6:30',desc:'Check CPE hours status and update the ICAI self-service portal.',start:'18:05',end:'18:30',pri:'H',tag:'Self',done:false},
+
+  {cat:'study',title:'Financial Concepts and Knowledge Letter / Session',desc:'GK',start:'19:00',end:'20:30',pri:'M',tag:'GK',done:false},
+  {cat:'study',title:'Financial Reporting',desc:'Day Part 1',start:'21:00',end:'23:45',pri:'H',tag:'Study',done:false},
+  {cat:'study',title:'AFM',desc:'Lecture and revision.',start:'21:00',end:'23:00',pri:'H',tag:'Study',done:false},
+
+  {cat:'workout',title:'Morning Walk / Jogging',desc:'5 km',start:'06:00',end:'06:35',pri:'M',tag:'Cardio',done:false},
+  {cat:'workout',title:'Yoga & Breathing Exercises',desc:'Pranayama + Surya Namaskar — 10 rounds',start:'06:35',end:'06:50',pri:'L',tag:'Yoga',done:false},
+  {cat:'workout',title:'Mind Control',desc:'NA',start:'19:00',end:'19:45',pri:'H',tag:'Self',done:false},
+];
+
+let tasks = [];
+let currentDate = '';
+let editingId = null;
+
+function getKey(date) { return 'planner_' + date; }
+
+function loadDate() {
+  currentDate = document.getElementById('date-input').value;
+  tasks = DEFAULT_TASKS.map((t, i) => ({
+    ...t,
+    id: 'task_' + Date.now() + '_' + i,
+    done: false
+  }));
+  save();
+  updateDateDisplay();
+  render();
+}
+
+function save() {
+  localStorage.setItem(getKey(currentDate), JSON.stringify(tasks));
+}
+
+function resetToDefaults() {
+  if (!confirm('Reset today\'s tasks to defaults? This will clear all changes for today.')) return;
+  tasks = DEFAULT_TASKS.map((t, i) => ({ ...t, id: 'task_' + Date.now() + '_' + i, done: false }));
+  save(); render();
+}
+
+function changeDate(delta) {
+  const d = new Date(currentDate + 'T00:00:00');
+  d.setDate(d.getDate() + delta);
+  document.getElementById('date-input').value = d.toISOString().split('T')[0];
+  loadDate();
+}
+
+function updateDateDisplay() {
+  const d = new Date(currentDate + 'T00:00:00');
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('date-display').textContent = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  document.getElementById('date-day').textContent = days[d.getDay()] + (isToday(d) ? ' — Today' : '');
+}
+
+function isToday(d) {
+  const t = new Date();
+  return d.getDate() === t.getDate() && d.getMonth() === t.getMonth() && d.getFullYear() === t.getFullYear();
+}
+
+function render() {
+  ['office','study','workout'].forEach(cat => renderCat(cat));
+  renderSummary();
+}
+
+function renderSummary() {
+  ['office','study','workout'].forEach(cat => {
+    const ct = tasks.filter(t => t.cat === cat);
+    const done = ct.filter(t => t.done).length;
+    const pct = ct.length ? Math.round(done / ct.length * 100) : 0;
+    document.getElementById('badge-' + cat).textContent = done + '/' + ct.length;
+    document.getElementById('pct-' + cat).textContent = pct + '%';
+    document.getElementById('prog-' + cat).style.width = pct + '%';
+    document.getElementById('s-' + cat + '-pct').textContent = pct + '%';
+    document.getElementById('s-' + cat + '-sub').textContent = done + ' of ' + ct.length + ' tasks';
+    document.getElementById('s-' + cat + '-bar').style.width = pct + '%';
+  });
+  const total = tasks.length;
+  const totalDone = tasks.filter(t => t.done).length;
+  const totalPct = total ? Math.round(totalDone / total * 100) : 0;
+  document.getElementById('s-total-pct').textContent = totalPct + '%';
+  document.getElementById('s-total-sub').textContent = totalDone + ' of ' + total + ' tasks';
+  document.getElementById('s-total-bar').style.width = totalPct + '%';
+}
+
+function renderCat(cat) {
+  const catTasks = tasks.filter(t => t.cat === cat).sort((a, b) => (a.start || '').localeCompare(b.start || ''));
+  const el = document.getElementById('list-' + cat);
+  if (!catTasks.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No tasks scheduled.<br>Use the form below to add your first task.</p></div>`;
+    return;
+  }
+  el.innerHTML = catTasks.map(t => {
+    const timeStr = t.start ? `<span class="task-time-badge">⏰ ${fmt(t.start)}${t.end ? ' – ' + fmt(t.end) : ''}</span>` : '';
+    const tagStr = t.tag ? `<span class="pri-badge" style="background:var(--surface2);color:var(--txt2)">${t.tag}</span>` : '';
+    return `<div class="task-item${t.done ? ' done' : ''}" id="ti-${t.id}">
+      <div class="task-check-wrap">
+        <input type="checkbox" class="task-check" ${t.done ? 'checked' : ''} onchange="toggle('${t.id}')">
+      </div>
+      <div class="task-body">
+        <div class="task-title">${esc(t.title)}</div>
+        ${t.desc ? `<div class="task-desc">${esc(t.desc)}</div>` : ''}
+        <div class="task-meta-row">
+          ${timeStr}
+          <span class="pri-badge pri-${t.pri}">${t.pri === 'H' ? 'High' : t.pri === 'M' ? 'Medium' : 'Low'}</span>
+          ${tagStr}
+        </div>
+      </div>
+      <div class="task-actions">
+        <button class="icon-btn" onclick="openEdit('${t.id}')" title="Edit">✏️</button>
+        <button class="icon-btn del" onclick="deleteTask('${t.id}')" title="Delete">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function fmt(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  return `${h % 12 || 12}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function toggle(id) {
+  const t = tasks.find(x => x.id === id);
+  if (t) { t.done = !t.done; save(); render(); }
+}
+
+function deleteTask(id) {
+  if (!confirm('Delete this task?')) return;
+  tasks = tasks.filter(x => x.id !== id);
+  save(); render();
+}
+
+function toggleForm(cat) {
+  const f = document.getElementById('form-' + cat);
+  f.classList.toggle('open');
+  if (f.classList.contains('open')) document.getElementById('fi-' + cat + '-title').focus();
+}
+
+function saveTask(cat) {
+  const title = document.getElementById('fi-' + cat + '-title').value.trim();
+  if (!title) { alert('Please enter a task title.'); return; }
+  tasks.push({
+    id: 'task_' + Date.now(),
+    cat,
+    title,
+    desc: document.getElementById('fi-' + cat + '-desc').value.trim(),
+    start: document.getElementById('fi-' + cat + '-start').value,
+    end: document.getElementById('fi-' + cat + '-end').value,
+    pri: document.getElementById('fi-' + cat + '-pri').value,
+    tag: document.getElementById('fi-' + cat + '-tag').value,
+    done: false
+  });
+  ['title','desc','start','end'].forEach(f => document.getElementById('fi-' + cat + '-' + f).value = '');
+  document.getElementById('fi-' + cat + '-pri').value = 'M';
+  document.getElementById('fi-' + cat + '-tag').value = '';
+  document.getElementById('form-' + cat).classList.remove('open');
+  save(); render();
+}
+
+function openEdit(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  editingId = id;
+  document.getElementById('edit-title').value = t.title || '';
+  document.getElementById('edit-desc').value = t.desc || '';
+  document.getElementById('edit-start').value = t.start || '';
+  document.getElementById('edit-end').value = t.end || '';
+  document.getElementById('edit-pri').value = t.pri || 'M';
+  document.getElementById('edit-tag').value = t.tag || '';
+  document.getElementById('edit-modal').classList.add('open');
+  document.getElementById('edit-title').focus();
+}
+
+function closeModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+  editingId = null;
+}
+
+function saveEdit() {
+  const t = tasks.find(x => x.id === editingId);
+  if (!t) return;
+  const title = document.getElementById('edit-title').value.trim();
+  if (!title) { alert('Title is required.'); return; }
+  t.title = title;
+  t.desc = document.getElementById('edit-desc').value.trim();
+  t.start = document.getElementById('edit-start').value;
+  t.end = document.getElementById('edit-end').value;
+  t.pri = document.getElementById('edit-pri').value;
+  t.tag = document.getElementById('edit-tag').value.trim();
+  closeModal(); save(); render();
+}
+
+document.getElementById('edit-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+
+// EXPORT — downloads ALL dates as one JSON backup file
+function exportAllData() {
+  const allData = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('planner_')) {
+      try { allData[key] = JSON.parse(localStorage.getItem(key)); } catch(e) {}
+    }
+  }
+  if (!Object.keys(allData).length) { showToast('No data found to export.'); return; }
+  const blob = new Blob([JSON.stringify({
+    exportedAt: new Date().toISOString(),
+    exportedBy: 'CA Daily Planner',
+    version: '1.0',
+    data: allData
+  }, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const dateStr = new Date().toISOString().split('T')[0];
+  a.download = 'CA_Planner_Backup_' + dateStr + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  const lbl = document.getElementById('last-export-lbl');
+  if (lbl) lbl.textContent = 'Last exported: ' + new Date().toLocaleString('en-IN');
+  showToast('Backup downloaded — save it to Google Drive or OneDrive');
+}
+
+// IMPORT — restores from a previously exported JSON file
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      const data = parsed.data || parsed;
+      let count = 0;
+      Object.keys(data).forEach(key => {
+        if (key.startsWith('planner_') && Array.isArray(data[key])) {
+          localStorage.setItem(key, JSON.stringify(data[key]));
+          count++;
+        }
+      });
+      if (count === 0) { showToast('No valid planner data found in file.'); return; }
+      showToast('Imported ' + count + ' day(s) of data successfully');
+      loadDate();
+    } catch(err) {
+      showToast('Invalid backup file. Please use an exported CA Planner backup.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// INIT
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('date-input').value = today;
+loadDate();
+</script>
+</body>
+</html>
