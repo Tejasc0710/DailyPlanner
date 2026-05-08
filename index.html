@@ -841,11 +841,8 @@ const DEFAULT_TASKS = [
 
   {cat:'study',title:'Financial Concepts and Knowledge Letter / Session',desc:'GK',start:'19:00',end:'20:30',pri:'M',tag:'GK',done:false},
   {cat:'study',title:'Financial Reporting',desc:'Day Part 1',start:'21:00',end:'23:45',pri:'H',tag:'Study',done:false},
-  {cat:'study',title:'AFM',desc:'Lecture and revision.',start:'21:00',end:'23:00',pri:'H',tag:'Study',done:false},
 
-  {cat:'workout',title:'Morning Walk / Jogging',desc:'5 km',start:'06:00',end:'06:35',pri:'M',tag:'Cardio',done:false},
-  {cat:'workout',title:'Yoga & Breathing Exercises',desc:'Pranayama + Surya Namaskar — 10 rounds',start:'06:35',end:'06:50',pri:'L',tag:'Yoga',done:false},
-  {cat:'workout',title:'Mind Control',desc:'NA',start:'19:00',end:'19:45',pri:'H',tag:'Self',done:false},
+  {cat:'workout',title:'Morning Walk / Jogging',desc:'5 km',start:'06:00',end:'06:35',pri:'M',tag:'Cardio',done:false}
 ];
 
 let tasks = [];
@@ -878,23 +875,13 @@ function loadDate() {
 
     } catch (e) {
 
-      tasks = DEFAULT_TASKS.map((t, i) => ({
-        ...t,
-        id: 'task_' + Date.now() + '_' + i,
-        done: false
-      }));
-
+      tasks = createDefaultTasks();
       save();
     }
 
   } else {
 
-    tasks = DEFAULT_TASKS.map((t, i) => ({
-      ...t,
-      id: 'task_' + Date.now() + '_' + i,
-      done: false
-    }));
-
+    tasks = createDefaultTasks();
     save();
   }
 
@@ -902,18 +889,13 @@ function loadDate() {
   render();
 }
 
-function resetToDefaults() {
+function createDefaultTasks() {
 
-  if (!confirm('Reset today\\'s tasks to defaults?')) return;
-
-  tasks = DEFAULT_TASKS.map((t, i) => ({
+  return DEFAULT_TASKS.map((t, i) => ({
     ...t,
     id: 'task_' + Date.now() + '_' + i,
     done: false
   }));
-
-  save();
-  render();
 }
 
 function changeDate(delta) {
@@ -948,19 +930,7 @@ function updateDateDisplay() {
     d.getFullYear();
 
   document.getElementById('date-day').textContent =
-    days[d.getDay()] +
-    (isToday(d) ? ' — Today' : '');
-}
-
-function isToday(d) {
-
-  const t = new Date();
-
-  return (
-    d.getDate() === t.getDate() &&
-    d.getMonth() === t.getMonth() &&
-    d.getFullYear() === t.getFullYear()
-  );
+    days[d.getDay()];
 }
 
 function render() {
@@ -990,130 +960,52 @@ function renderSummary() {
 
     document.getElementById('prog-' + cat).style.width =
       pct + '%';
-
-    document.getElementById('s-' + cat + '-pct').textContent =
-      pct + '%';
-
-    document.getElementById('s-' + cat + '-sub').textContent =
-      done + ' of ' + ct.length + ' tasks';
-
-    document.getElementById('s-' + cat + '-bar').style.width =
-      pct + '%';
   });
-
-  const total = tasks.length;
-
-  const totalDone = tasks.filter(t => t.done).length;
-
-  const totalPct = total
-    ? Math.round(totalDone / total * 100)
-    : 0;
-
-  document.getElementById('s-total-pct').textContent =
-    totalPct + '%';
-
-  document.getElementById('s-total-sub').textContent =
-    totalDone + ' of ' + total + ' tasks';
-
-  document.getElementById('s-total-bar').style.width =
-    totalPct + '%';
 }
 
 function renderCat(cat) {
 
-  const catTasks = tasks
-    .filter(t => t.cat === cat)
-    .sort((a,b) => (a.start || '').localeCompare(b.start || ''));
+  const catTasks = tasks.filter(t => t.cat === cat);
 
   const el = document.getElementById('list-' + cat);
 
   if (!catTasks.length) {
 
-    el.innerHTML =
-      '<div class="empty-state"><div class="empty-icon">📋</div><p>No tasks scheduled.</p></div>';
+    el.innerHTML = '<div class="empty-state">No tasks</div>';
 
     return;
   }
 
-  el.innerHTML = catTasks.map(t => {
-
-    const timeStr = t.start
-      ? `<span class="task-time-badge">⏰ ${fmt(t.start)}${t.end ? ' – ' + fmt(t.end) : ''}</span>`
-      : '';
-
-    const tagStr = t.tag
-      ? `<span class="pri-badge" style="background:var(--surface2);color:var(--txt2)">${t.tag}</span>`
-      : '';
-
-    return `
-    <div class="task-item${t.done ? ' done' : ''}">
-      <div class="task-check-wrap">
-        <input type="checkbox"
-          class="task-check"
-          ${t.done ? 'checked' : ''}
-          onchange="toggle('${t.id}')">
-      </div>
+  el.innerHTML = catTasks.map(t => `
+    <div class="task-item ${t.done ? 'done' : ''}">
+      <input type="checkbox"
+        ${t.done ? 'checked' : ''}
+        onchange="toggle('${t.id}')">
 
       <div class="task-body">
-        <div class="task-title">${esc(t.title)}</div>
-
-        ${t.desc ? `<div class="task-desc">${esc(t.desc)}</div>` : ''}
-
-        <div class="task-meta-row">
-          ${timeStr}
-
-          <span class="pri-badge pri-${t.pri}">
-            ${t.pri === 'H' ? 'High' : t.pri === 'M' ? 'Medium' : 'Low'}
-          </span>
-
-          ${tagStr}
-        </div>
+        <div class="task-title">${t.title}</div>
+        <div class="task-desc">${t.desc || ''}</div>
       </div>
 
-      <div class="task-actions">
-        <button class="icon-btn" onclick="openEdit('${t.id}')">✏️</button>
-        <button class="icon-btn del" onclick="deleteTask('${t.id}')">🗑</button>
-      </div>
+      <button onclick="deleteTask('${t.id}')">Delete</button>
     </div>
-    `;
-  }).join('');
-}
-
-function fmt(t) {
-
-  if (!t) return '';
-
-  const [h,m] = t.split(':').map(Number);
-
-  return `${h % 12 || 12}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
-}
-
-function esc(s) {
-
-  return String(s || '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/\n/g,'<br>');
+  `).join('');
 }
 
 function toggle(id) {
 
   const t = tasks.find(x => x.id === id);
 
-  if (t) {
+  if (!t) return;
 
-    t.done = !t.done;
+  t.done = !t.done;
 
-    save();
+  save();
 
-    render();
-  }
+  render();
 }
 
 function deleteTask(id) {
-
-  if (!confirm('Delete this task?')) return;
 
   tasks = tasks.filter(x => x.id !== id);
 
@@ -1122,20 +1014,13 @@ function deleteTask(id) {
   render();
 }
 
-function toggleForm(cat) {
-
-  const f = document.getElementById('form-' + cat);
-
-  f.classList.toggle('open');
-}
-
 function saveTask(cat) {
 
   const title =
     document.getElementById('fi-' + cat + '-title').value.trim();
 
   if (!title) {
-    alert('Please enter task title');
+    alert('Enter task title');
     return;
   }
 
@@ -1143,168 +1028,18 @@ function saveTask(cat) {
     id: 'task_' + Date.now(),
     cat,
     title,
-    desc: document.getElementById('fi-' + cat + '-desc').value.trim(),
-    start: document.getElementById('fi-' + cat + '-start').value,
-    end: document.getElementById('fi-' + cat + '-end').value,
-    pri: document.getElementById('fi-' + cat + '-pri').value,
-    tag: document.getElementById('fi-' + cat + '-tag').value,
+    desc: document.getElementById('fi-' + cat + '-desc').value,
+    start: '',
+    end: '',
+    pri: 'M',
+    tag: '',
     done: false
   });
 
   save();
 
   render();
-
-  document.getElementById('form-' + cat).classList.remove('open');
 }
-
-function openEdit(id) {
-
-  const t = tasks.find(x => x.id === id);
-
-  if (!t) return;
-
-  editingId = id;
-
-  document.getElementById('edit-title').value = t.title || '';
-  document.getElementById('edit-desc').value = t.desc || '';
-  document.getElementById('edit-start').value = t.start || '';
-  document.getElementById('edit-end').value = t.end || '';
-  document.getElementById('edit-pri').value = t.pri || 'M';
-  document.getElementById('edit-tag').value = t.tag || '';
-
-  document.getElementById('edit-modal').classList.add('open');
-}
-
-function closeModal() {
-
-  document.getElementById('edit-modal').classList.remove('open');
-
-  editingId = null;
-}
-
-function saveEdit() {
-
-  const t = tasks.find(x => x.id === editingId);
-
-  if (!t) return;
-
-  t.title = document.getElementById('edit-title').value.trim();
-  t.desc = document.getElementById('edit-desc').value.trim();
-  t.start = document.getElementById('edit-start').value;
-  t.end = document.getElementById('edit-end').value;
-  t.pri = document.getElementById('edit-pri').value;
-  t.tag = document.getElementById('edit-tag').value.trim();
-
-  save();
-
-  render();
-
-  closeModal();
-}
-
-function exportAllData() {
-
-  const allData = {};
-
-  for (let i = 0; i < localStorage.length; i++) {
-
-    const key = localStorage.key(i);
-
-    if (key && key.startsWith('planner_')) {
-
-      try {
-        allData[key] =
-          JSON.parse(localStorage.getItem(key));
-      } catch(e){}
-    }
-  }
-
-  const blob = new Blob(
-    [JSON.stringify(allData, null, 2)],
-    {type:'application/json'}
-  );
-
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-
-  a.href = url;
-
-  a.download = 'planner_backup.json';
-
-  a.click();
-
-  URL.revokeObjectURL(url);
-
-  showToast('Backup exported successfully');
-}
-
-function importData(event) {
-
-  const file = event.target.files[0];
-
-  if (!file) return;
-
-  const reader = new FileReader();
-
-  reader.onload = function(e) {
-
-    try {
-
-      const data = JSON.parse(e.target.result);
-
-      Object.keys(data).forEach(key => {
-
-        if (key.startsWith('planner_')) {
-
-          localStorage.setItem(
-            key,
-            JSON.stringify(data[key])
-          );
-        }
-      });
-
-      loadDate();
-
-      showToast('Backup imported successfully');
-
-    } catch(err) {
-
-      showToast('Invalid backup file');
-    }
-  };
-
-  reader.readAsText(file);
-}
-
-function showToast(msg) {
-
-  const t = document.getElementById('toast');
-
-  t.textContent = msg;
-
-  t.classList.add('show');
-
-  setTimeout(() => {
-    t.classList.remove('show');
-  }, 3000);
-}
-
-document.getElementById('edit-modal')
-.addEventListener('click', function(e) {
-
-  if (e.target === this) {
-    closeModal();
-  }
-});
-
-document.addEventListener('keydown', e => {
-
-  if (e.key === 'Escape') {
-    closeModal();
-  }
-});
 
 const today =
   new Date().toISOString().split('T')[0];
