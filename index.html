@@ -496,6 +496,12 @@
       <button onclick="changeDate(1)" title="Next day">&#8250;</button>
     </div>
     <button class="btn-export" onclick="exportAllData()" title="Download all data as a backup file">&#9729; Export Backup</button>
+    <button class="btn-export" 
+  style="background:#E8F0FB;border-color:#2155A3;color:#0C447C;" 
+  onclick="exportToSheets()" 
+  title="Save all data directly to Google Sheets">
+  📊 Sync to Sheets
+</button>
     <button class="btn-import" onclick="document.getElementById('import-file').click()" title="Restore from a backup file">&#8593; Import Backup</button>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
     <button class="btn-print" onclick="window.print()">&#128438; Print</button>
@@ -835,6 +841,7 @@
 <footer class="site-footer">CA Daily Planner &mdash; All data saved locally in your browser &mdash; No internet or account required</footer>
 
 <script>
+const SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbx-6RY7SO56Mlnb40luVFIPAlXBHXavlvEsmZFb-ZS0fkjb0L5FlnWhuFLC37vgobPu2w/exec';
 const DEFAULT_TASKS = [
   {cat:'office',title:'Morning Call',desc:'Daily planning and reporting',start:'10:00',end:'10:30',pri:'L',tag:'Self',done:false},
   {cat:'office',title:'Audit Workings',desc:'Verify audit workings and reports.',start:'10:30',end:'18:00',pri:'M',tag:'Audit',done:false},
@@ -1067,6 +1074,45 @@ function exportAllData() {
   const lbl = document.getElementById('last-export-lbl');
   if (lbl) lbl.textContent = 'Last exported: ' + new Date().toLocaleString('en-IN');
   showToast('Backup downloaded — save it to Google Drive or OneDrive');
+}
+
+async function exportToSheets() {
+  const allData = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('planner_')) {
+      try { allData[key] = JSON.parse(localStorage.getItem(key)); } catch(e) {}
+    }
+  }
+  if (!Object.keys(allData).length) {
+    showToast('No data found to export.');
+    return;
+  }
+
+  showToast('Syncing to Google Sheets…');
+
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    exportedBy: 'CA Daily Planner',
+    version: '1.0',
+    data: allData
+  };
+
+  try {
+    // Apps Script requires no-cors due to redirect handling
+    await fetch(SHEETS_WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    showToast('✅ Synced to Google Sheets successfully!');
+    const lbl = document.getElementById('last-export-lbl');
+    if (lbl) lbl.textContent = 'Last synced to Sheets: ' + new Date().toLocaleString('en-IN');
+  } catch (err) {
+    showToast('❌ Sync failed. Check your internet connection.');
+    console.error('Sheets sync error:', err);
+  }
 }
 
 // IMPORT — restores from a previously exported JSON file
